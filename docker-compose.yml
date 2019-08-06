@@ -1,0 +1,56 @@
+# docker-compose.yml
+version: '3'
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+        MYSQL_DATABASE: 'db'
+        MYSQL_USER: 'user'
+        MYSQL_PASSWORD: 'password'
+        MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+        - 3306:3306
+    expose:
+        - 3306
+    volumes:
+        - ./data:/var/lib/mysql
+  flask:
+    image: webapp-flask
+    extra_hosts:
+      - keycloak.dev.local:127.0.0.1
+      - app.dev.local:127.0.0.1
+    build:
+      context: .
+      dockerfile: Dockerfile-flask
+    volumes:
+      - "./webapp:/app"
+    depends_on:
+      - db
+  nginx:
+    image: webapp-nginx
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx
+    extra_hosts:
+      - keycloak.dev.local:127.0.0.1
+      - app.dev.local:127.0.0.1
+    ports:
+      - 5000:80
+    depends_on:
+      - flask
+  keycloak:
+    image: jboss/keycloak
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+      KEYCLOAK_IMPORT: /etc/settings/realm.json
+    volumes:
+      - ./keycloak:/etc/settings
+    ports:
+      - 8080:8080
+    extra_hosts:
+      - keycloak.dev.local:127.0.0.1
+      - app.dev.local:127.0.0.1
+    depends_on:
+      - db
