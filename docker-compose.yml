@@ -1,5 +1,5 @@
 # docker-compose.yml
-version: '3'
+version: '3.4'
 services:
   db:
     image: mysql:5.7
@@ -17,12 +17,10 @@ services:
         - ./data:/var/lib/mysql
   flask:
     image: webapp-flask
-    extra_hosts:
-      - keycloak.dev.local:127.0.0.1
-      - app.dev.local:127.0.0.1
     build:
       context: .
       dockerfile: Dockerfile-flask
+      network: host
     volumes:
       - "./webapp:/app"
     depends_on:
@@ -32,9 +30,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-nginx
-    extra_hosts:
-      - keycloak.dev.local:127.0.0.1
-      - app.dev.local:127.0.0.1
     ports:
       - 5000:80
     depends_on:
@@ -49,8 +44,5 @@ services:
       - ./keycloak:/etc/settings
     ports:
       - 8080:8080
-    extra_hosts:
-      - keycloak.dev.local:127.0.0.1
-      - app.dev.local:127.0.0.1
     depends_on:
       - db

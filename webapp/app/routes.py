@@ -19,9 +19,8 @@ def login():
 
 @app.route('/custom_callback')
 @oidc.custom_callback
-def callback():
-    return 'Hello. You submitted'
-
+def callback(data):
+    return 'Hello. You submitted %s' % data
 
 
 
