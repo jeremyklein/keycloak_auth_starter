@@ -1,4 +1,4 @@
-from app import app, oidc
+from . import app, oidc
 
 
 @app.route('/')
@@ -14,14 +14,7 @@ def hello_world():
 @app.route('/login')
 @oidc.require_login
 def login():
-    return 'Welcome %s' % oidc.user_getfield('email')
-
-
-@app.route('/custom_callback')
-@oidc.custom_callback
-def callback(data):
-    return 'Hello. You submitted %s' % data
-
+    return 'Welcome %s' % oidc.user_getfield('given_name')
 
 
 

@@ -15,11 +15,10 @@ app.config.update({
     'OIDC_REQUIRE_VERIFIED_EMAIL': False,
     'OIDC_USER_INFO_ENABLED': True,
     'OIDC_OPENID_REALM': 'flask-demo',
-    'OIDC_VALID_ISSUERS': 'http://keycloak:8080/auth/realms/flask-app',
     'OIDC_SCOPES': ['openid', 'email', 'profile'],
     'OIDC_INTROSPECTION_AUTH_METHOD': 'client_secret_post'
 })
 
 
 oidc = OpenIDConnect(app)
-from app import routes
+from . import routes
