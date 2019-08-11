@@ -1,7 +1,13 @@
 # docker-compose.yml
 version: '3.4'
+
+volumes:
+  postgres_data:
+    driver: local
+
+
 services:
-  db:
+  flask-db:
     image: mysql:5.7
     restart: always
     environment:
@@ -24,7 +30,7 @@ services:
     volumes:
       - "./webapp:/app"
     depends_on:
-      - db
+      - flask-db
   nginx:
     image: webapp-nginx
     build:
@@ -34,9 +40,24 @@ services:
       - 5000:80
     depends_on:
       - flask
+  keycloak-db:
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+
   keycloak:
     image: jboss/keycloak
     environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: keycloak-db
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: Pa55w0rd
       KEYCLOAK_IMPORT: /etc/settings/realm.json
@@ -45,4 +66,4 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      - db
+      - keycloak-db
